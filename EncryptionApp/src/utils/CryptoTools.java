@@ -1,23 +1,41 @@
 package utils;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 public class CryptoTools {
 
-	public static String getDefaultEncryptionMode() { return DEFAULT_ENCRYPTION_MODE; }
+	private static final String DEFAULT_PROVIDER = "BC";
 	
-	public static Cipher getDefaultCipherInstance() throws Exception {
-		String cipherMethod = String.format("%s/%s/%s",
-				DEFAULT_ENCRYPTION_ALGORITHM,
-				DEFAULT_ENCRYPTION_MODE,
-				DEFAULT_PADDING_STATE);
+	private static final String DEFAULT_MESSAGEDIGEST_ALGORITHM = "SHA-512";
+	
+	private static final String DEFAULT_SYMMETRIC_ALGORITHM = "AES";
+	private static final String DEFAULT_SYMMETRIC_MODE = "CTR";
+	private static final String DEFAULT_SYMMETRIC_PADDING_STATE = "NoPadding";
+	
+	public static String getDefaultProvider() { return DEFAULT_PROVIDER; }
+	
+	public static MessageDigest getDefaultMessageDigest() 
+			throws NoSuchAlgorithmException, NoSuchProviderException {
 		
-		return Cipher.getInstance(cipherMethod);
+		return MessageDigest.getInstance(DEFAULT_MESSAGEDIGEST_ALGORITHM, DEFAULT_PROVIDER);
 	}
 	
-	public static IvParameterSpec getAesIv(byte[] ivBytes) {
-		return IvParameterSpec(ivBytes);
+	public static Cipher getDefaultSymmetricCipherInstance()
+			throws NoSuchAlgorithmException, NoSuchPaddingException,
+			NoSuchProviderException {
+		
+		String cipherMethod = String.format("%s/%s/%s",
+				DEFAULT_SYMMETRIC_ALGORITHM,
+				DEFAULT_SYMMETRIC_MODE,
+				DEFAULT_SYMMETRIC_PADDING_STATE);
+		
+		return Cipher.getInstance(cipherMethod, DEFAULT_PROVIDER);
 	}
 
 	public static byte[] initIvBytes(int messageNumber, byte[] ivBytes) {
@@ -35,7 +53,7 @@ public class CryptoTools {
 		return ivBytes;
 	}
 	
-	public static SecretKey getAesKey(byte[] keyBytes) {
-		return SecretKeySpec(keyBytes, "AES");
+	public static SecretKeySpec getSymmetricKey(byte[] keyBytes) {
+		return new SecretKeySpec(keyBytes, DEFAULT_SYMMETRIC_ALGORITHM);
 	}
 }

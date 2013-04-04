@@ -4,10 +4,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
+import utils.CryptoTools;
+
 public class Hash {
 
-	private final static String DEFAULT_ALGORITHM = "SHA-256";
-	
 	/**
 	 * The method accepts some data, and returns a message digest of data
 	 * 
@@ -16,8 +16,10 @@ public class Hash {
 	 * @throws NoSuchAlgorithmException
 	 * @throws NoSuchProviderException
 	 */
-	public static byte[] run(byte[] data) throws NoSuchAlgorithmException, NoSuchProviderException {
-		MessageDigest digest = MessageDigest.getInstance(DEFAULT_ALGORITHM, "BC");
+	public static byte[] run(byte[] data)
+			throws NoSuchAlgorithmException, NoSuchProviderException {
+		
+		MessageDigest digest = CryptoTools.getDefaultMessageDigest();
 		digest.update(data);
 		return digest.digest();
 	}
