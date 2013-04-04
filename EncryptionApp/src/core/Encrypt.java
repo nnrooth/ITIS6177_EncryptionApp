@@ -16,7 +16,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 
-import crypto.MessageDigest;
+import crypto.Hash;
 import crypto.Symmetric;
 import utils.CryptoTools;
 import utils.BaseTools;
@@ -51,7 +51,7 @@ public class Encrypt {
 				fin.read(plainText);
 				fin.close();
 				
-				digest = MessageDigest.hashBytes(plainText);
+				digest = Hash.hashBytes(plainText);
 				keySize = 32; // 256-bit key
 				
 				keyBytes = Arrays.copyOf(digest, keySize);
