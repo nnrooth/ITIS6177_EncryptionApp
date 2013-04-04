@@ -26,7 +26,7 @@ public class CryptoTools {
 		return MessageDigest.getInstance(DEFAULT_MESSAGEDIGEST_ALGORITHM, DEFAULT_PROVIDER);
 	}
 	
-	public static Cipher getDefaultSymmetricCipherInstance()
+	public static Cipher getDefaultSymmetricCipher()
 			throws NoSuchAlgorithmException, NoSuchPaddingException,
 			NoSuchProviderException {
 		

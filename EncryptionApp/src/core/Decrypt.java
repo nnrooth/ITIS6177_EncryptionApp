@@ -27,7 +27,7 @@ public class Decrypt {
 
 	public static void main(String[] args) {
 		
-		System.out.printf("[+] TNO Decryption Tool Reborn");
+		System.out.printf("[+] TNO Decryption Tool Reborn\n");
 		Scanner scanIn = new Scanner(System.in);
 		
 		String fip; // fip - File input path
@@ -47,7 +47,7 @@ public class Decrypt {
 		System.out.printf("[.] Read Path: ");
 		fip = scanIn.nextLine();
 		
-		System.out.printf("[*] Attempting Decryption");
+		System.out.printf("[*] Attempting Decryption\n");
 		
 		try {
 			
@@ -62,7 +62,7 @@ public class Decrypt {
 			keyBytes = Arrays.copyOf(digest, keySize);
 			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
 			
-			cipherText = Symmetric.encrypt(plainText, ivBytes, keyBytes);
+			cipherText = Symmetric.decrypt(plainText, keyBytes, ivBytes);
 			
 			System.out.printf("[+] MD : %s\n", BaseTools.toHex(digest));
 			System.out.printf("[+] Key: %s\n", BaseTools.toHex(keyBytes));

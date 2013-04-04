@@ -25,9 +25,9 @@ public class Symmetric {
 				InvalidKeyException, InvalidAlgorithmParameterException {
 		
 		byte[] cipherBytes = new byte[dataBytes.length];
-		SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
+		SecretKeySpec key = CryptoTools.getSymmetricKey(keyBytes);
 		IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
-		Cipher cipher = CryptoTools.getDefaultSymmetricCipherInstance();
+		Cipher cipher = CryptoTools.getDefaultSymmetricCipher();
 		
 		cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
 		
@@ -46,12 +46,12 @@ public class Symmetric {
 		byte[] cipherBytes = new byte[dataBytes.length];
 		SecretKeySpec key = CryptoTools.getSymmetricKey(keyBytes);
 		IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
-		Cipher cipher = CryptoTools.getDefaultSymmetricCipherInstance();
+		Cipher cipher = CryptoTools.getDefaultSymmetricCipher();
 		
 		cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
 		
-		int ctLength = cipher.update(dataBytes, 0, dataBytes.length, cipherBytes, 0);
-		ctLength += cipher.doFinal(cipherBytes, ctLength);
+		int ptLength = cipher.update(dataBytes, 0, dataBytes.length, cipherBytes, 0);
+		ptLength += cipher.doFinal(cipherBytes, ptLength);
 		
 		return cipherBytes;
 	}

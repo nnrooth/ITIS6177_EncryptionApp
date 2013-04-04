@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -25,7 +26,7 @@ public class Encrypt {
 
 	public static void main(String[] args) {
 		
-		System.out.printf("[+] TNO Encryption Tool Reborn");
+		System.out.printf("[+] TNO Encryption Tool Reborn\n");
 		Scanner scanIn = new Scanner(System.in);
 		
 		String fip; // fip - File input path
@@ -45,7 +46,7 @@ public class Encrypt {
 		System.out.printf("[.] Read Path: ");
 		fip = scanIn.nextLine();
 		
-		System.out.printf("[*] Attempting Encryption");
+		System.out.printf("[*] Attempting Encryption\n");
 		
 		try {
 			
@@ -55,12 +56,13 @@ public class Encrypt {
 			fin.close();
 			
 			digest = Hash.run(plainText);
-			keySize = 32; // 256-bit key
+			keySize = 32 /* bytes */;
+					 /* 128 bits */
 			
 			keyBytes = Arrays.copyOf(digest, keySize);
 			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
 			
-			cipherText = Symmetric.encrypt(plainText, ivBytes, keyBytes);
+			cipherText = Symmetric.encrypt(plainText, keyBytes, ivBytes);
 			
 			System.out.printf("[+] MD : %s\n", BaseTools.toHex(digest));
 			System.out.printf("[+] Key: %s\n", BaseTools.toHex(keyBytes));
@@ -68,8 +70,11 @@ public class Encrypt {
 			
 			System.out.printf("[.] Write Path: ");
 			fop = scanIn.nextLine();
-			System.out.printf("[.] Write Name: ");
-			fon = scanIn.nextLine();
+			
+			String fileName = new File(fip).getName();
+			String[] fileInfo = fileName.split("\\.");
+			
+			fon = fileInfo[0];
 			
 			cipherWrite = fop + fon + ".ct";
 			digestWrite = fop + fon + ".md";
