@@ -17,7 +17,24 @@ import utils.CryptoTools;
 
 public class Symmetric {
 
-	// TODO Comment on this method
+	/**
+	 * Encrypt passed plaintext
+	 * 
+	 * @param dataBytes
+	 * @param keyBytes
+	 * @param ivBytes
+	 * 
+	 * @return Ciphertext of encrypted plaintext
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchPaddingException
+	 * @throws ShortBufferException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 */
 	public static byte[] encrypt(byte[] dataBytes, byte[] keyBytes, byte[] ivBytes)
 				throws NoSuchAlgorithmException, NoSuchProviderException,
 				NoSuchPaddingException, ShortBufferException,
@@ -37,23 +54,41 @@ public class Symmetric {
 		return cipherBytes;
 	}
 	
-	public static byte[] decrypt(byte[] dataBytes, byte[] keyBytes, byte[] ivBytes)
+	/**
+	 * Decrypt passed ciphertext
+	 * 
+	 * @param cipherBytes
+	 * @param keyBytes
+	 * @param ivBytes
+	 * 
+	 * @return Plaintext decrypted from ciphertext
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchPaddingException
+	 * @throws ShortBufferException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 */
+	public static byte[] decrypt(byte[] cipherBytes, byte[] keyBytes, byte[] ivBytes)
 				throws NoSuchAlgorithmException, NoSuchProviderException,
 				NoSuchPaddingException, ShortBufferException,
 				IllegalBlockSizeException, BadPaddingException,
 				InvalidKeyException, InvalidAlgorithmParameterException {
 		
-		byte[] cipherBytes = new byte[dataBytes.length];
+		byte[] dataBytes = new byte[cipherBytes.length];
 		SecretKeySpec key = CryptoTools.getSymmetricKey(keyBytes);
 		IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 		Cipher cipher = CryptoTools.getDefaultSymmetricCipher();
 		
 		cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
 		
-		int ptLength = cipher.update(dataBytes, 0, dataBytes.length, cipherBytes, 0);
-		ptLength += cipher.doFinal(cipherBytes, ptLength);
+		int ctLength = cipher.update(cipherBytes, 0, cipherBytes.length, dataBytes, 0);
+		ctLength += cipher.doFinal(dataBytes, ctLength);
 		
-		return cipherBytes;
+		return dataBytes;
 	}
 
 }
