@@ -10,6 +10,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
@@ -17,7 +18,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 public class CryptoTools {
-
 	// TODO Comment on variables
 	private static final String DEFAULT_PROVIDER = "BC";
 	
@@ -30,7 +30,7 @@ public class CryptoTools {
 	private static final String DEFAULT_ASYMMETRIC_ALGORITHM = "RSA";
 	private static final String DEFAULT_ASYMMETRIC_MODE = "NONE";
 	private static final String DEFAULT_ASYMMETRIC_PADDING_STATE = "PKCS1Padding";
-	private static final int DEFAULT_ASYMMETRIC_KEY_SIZE = 2048;
+	private static final int 	DEFAULT_ASYMMETRIC_KEY_SIZE = 2048;
 	
 	// TODO Comment on method
 	public static String getDefaultProvider() { return DEFAULT_PROVIDER; }
@@ -125,7 +125,7 @@ public class CryptoTools {
 		
 		PrivateKey privKey = KeyFactory
 				.getInstance(DEFAULT_ASYMMETRIC_ALGORITHM)
-				.generatePrivate(new X509EncodedKeySpec(keyBytes));
+				.generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
 		
 		return privKey;
 	}
@@ -138,7 +138,7 @@ public class CryptoTools {
 	 * @throws NoSuchAlgorithmException
 	 * @throws NoSuchProviderException
 	 */
-	public KeyPair newAsymmetricKeyPair()
+	public static KeyPair newAsymmetricKeyPair()
 			throws NoSuchAlgorithmException, NoSuchProviderException {
 		
 		SecureRandom random = new SecureRandom();

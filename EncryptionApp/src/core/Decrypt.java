@@ -7,7 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
-import java.util.Scanner;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -18,7 +18,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 
-import crypto.Hash;
+import crypto.Asymmetric;
 import crypto.Symmetric;
 import utils.CryptoTools;
 import utils.BaseTools;
@@ -27,57 +27,84 @@ public class Decrypt {
 
 	public static void main(String[] args) {
 		
-		System.out.printf("[+] TNO Decryption Tool Reborn\n");
-		Scanner scanIn = new Scanner(System.in);
+		System.out.printf("[+] TNO Decryption Tool\n");
 		
 		String fip; // fip - File input path
 		RandomAccessFile fin; // fin - Input file
 		
 		String fop; // fop - File output path
 		String fon; // fon - File output name
-		String cipherWrite; String digestWrite;
+		String cipherRead; String digestRead; String plainTextWrite;
 		FileOutputStream fos; // fos - File output stream
 		
-		byte[] plainText; byte[] digest;
+		byte[] cipherText; byte[] digest;
 		byte[] keyBytes; byte[] ivBytes; 
-		byte[] cipherText;
+		byte[] plainText;
+		
+		String pikDir, pik; byte[] pikBytes; byte[] mdCipher;
 		
 		int keySize;
 		
 		System.out.printf("[.] Read Path: ");
-		fip = scanIn.nextLine();
+		fip = BaseTools.getUserInput();
 		
 		System.out.printf("[*] Attempting Decryption\n");
 		
 		try {
+			// Start decryption process
 			
-			fin = new RandomAccessFile(fip, "r");
-			plainText = new byte[(int) fin.length()];
-			fin.read(plainText);
+			pikDir = BaseTools.getDefaultKeyDir();
+			pik = pikDir + BaseTools.getDefaultKeyFileNames()[1];
+			
+			// Check for key pair
+			if (!new File(pik).exists()) {
+				System.out.printf("[-] No key pair found!\n");
+				KeyGen.main(null);
+			}
+			
+			// Read in the private key
+			fin = new RandomAccessFile(pik, "r");
+			pikBytes = new byte[(int) fin.length()];
+			fin.read(pikBytes);
 			fin.close();
 			
-			digest = Hash.run(plainText);
-			keySize = 32; // 256-bit key
+			// Read in cipher of file
+			cipherRead = fip + ".ct";
+			fin = new RandomAccessFile(cipherRead, "r");
+			cipherText = new byte[(int) fin.length()];
+			fin.read(cipherText);
+			fin.close();
 			
+			// Read in cipher of key
+			digestRead = fip + ".md";
+			fin = new RandomAccessFile(digestRead, "r");
+			mdCipher = new byte[(int) fin.length()];
+			fin.read(mdCipher);
+			fin.close();
+			
+			// Decrypt message digest with private key
+			digest = Asymmetric.decrypt(mdCipher, pikBytes);
+			keySize = 32 /* bytes */;
+			 /* 128 bits */
+			
+			// Split message digest into key and iv
 			keyBytes = Arrays.copyOf(digest, keySize);
 			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
 			
-			cipherText = Symmetric.decrypt(plainText, keyBytes, ivBytes);
+			plainText = Symmetric.decrypt(cipherText, keyBytes, ivBytes);
 			
 			System.out.printf("[+] MD : %s\n", BaseTools.toHex(digest));
 			System.out.printf("[+] Key: %s\n", BaseTools.toHex(keyBytes));
 			System.out.printf("[+] IV : %s\n", BaseTools.toHex(ivBytes));
 			
 			System.out.printf("[.] Write Path: ");
-			fop = scanIn.nextLine();
-			System.out.printf("[.] Write Name: ");
-			fon = scanIn.nextLine();
+			fop = BaseTools.getUserInput();
+			new File(fop).mkdirs();
 			
-			cipherWrite = fop + fon + ".ct";
-			digestWrite = fop + fon + ".md";
-			
-			fos = new FileOutputStream(cipherWrite); fos.write(cipherText); fos.close();
-			fos = new FileOutputStream(digestWrite); fos.write(digest); fos.close();
+			fon = new File(fip).getName();
+			plainTextWrite = fop + fon;
+						
+			fos = new FileOutputStream(plainTextWrite); fos.write(plainText); fos.close();
 			
 			System.out.printf("[+] Write Complete\n");
 			
@@ -103,8 +130,7 @@ public class Decrypt {
 			System.out.printf("[-] Err: No such padding error\n");
 		} catch (Exception e) {
 			System.out.printf("[-] Err: Generic error\n");
-		} finally {
-			scanIn.close();
+			e.printStackTrace();
 		}
 	}
 }

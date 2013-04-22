@@ -1,8 +1,20 @@
 package utils;
 
+import java.io.File;
+import java.util.Scanner;
+
 public class BaseTools {
 
 	private static String digits = "01234567890abcdef";
+	private static Scanner scanIn = null;
+
+	public static String getUserInput() {
+		if (scanIn == null) {
+			scanIn = new Scanner(System.in);
+		}
+		
+		return scanIn.nextLine();
+	}
 	
 	public static String toHex(byte[] bytes, int length) {
 		StringBuffer buffy = new StringBuffer();
@@ -18,5 +30,17 @@ public class BaseTools {
 	public static String toHex(byte[] bytes) {
 		return toHex(bytes, bytes.length);
 	}
-
+	
+	public static String getDefaultKeyDir() {
+		String dir = System.getProperty("user.dir") + "\\.keys\\";
+		File file = new File(dir); file.mkdir(); file = null;
+		
+		return dir;
+	}
+	
+	public static String[] getDefaultKeyFileNames() {
+		String[] keyFileNames = new String[] { ".puk", ".pik" };
+		
+		return keyFileNames;
+	}
 }
