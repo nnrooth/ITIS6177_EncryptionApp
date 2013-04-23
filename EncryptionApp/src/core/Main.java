@@ -57,11 +57,11 @@ public class Main {
 		switch (state) {
 		
 		case ENCRYPT:
-			Encrypt.main(null);
+			EncryptV2.main(null);
 			break;
 			
 		case DECRYPT:
-			Decrypt.main(null);
+			DecryptV2.main(null);
 			break;
 			
 		case KEYGEN:

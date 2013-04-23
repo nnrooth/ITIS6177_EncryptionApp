@@ -1,5 +1,8 @@
 package crypto;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -7,6 +10,8 @@ import java.security.NoSuchProviderException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
@@ -55,6 +60,40 @@ public class Symmetric {
 	}
 	
 	/**
+	 * Encrypts a stream and outputs ciphertext as a stream. Uses 1024 byte buffer.
+	 * 
+	 * @param in
+	 * @param out
+	 * @param keyBytes
+	 * @param ivBytes
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchPaddingException
+	 * @throws NoSuchProviderException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IOException
+	 */
+	public static void encrypt(InputStream in, OutputStream out, byte[] keyBytes, byte[] ivBytes)
+			throws NoSuchAlgorithmException, NoSuchPaddingException,
+			NoSuchProviderException, InvalidKeyException,
+			InvalidAlgorithmParameterException, IOException {
+		
+		SecretKeySpec key = CryptoTools.getSymmetricKey(keyBytes);
+		IvParameterSpec ivSpec = new IvParameterSpec(CryptoTools.initIvBytes(1, ivBytes));
+		
+		Cipher cipher = CryptoTools.getDefaultSymmetricCipher();
+		cipher.init(Cipher.ENCRYPT_MODE,  key, ivSpec);
+		
+		out = new CipherOutputStream(out, cipher);
+		int count = 0;
+		byte[] buffer = new byte[1024];
+
+		while ((count = in.read(buffer)) >= 0) {
+			out.write(buffer, 0, count);
+		}
+	}
+	
+	/**
 	 * Decrypt passed ciphertext
 	 * 
 	 * @param cipherBytes
@@ -89,6 +128,40 @@ public class Symmetric {
 		ctLength += cipher.doFinal(dataBytes, ctLength);
 		
 		return dataBytes;
+	}
+	
+	/**
+	 * Decrypts a stream and outputs plaintext as a stream. Uses 1024 byte buffer.
+	 * 
+	 * @param in
+	 * @param out
+	 * @param keyBytes
+	 * @param ivBytes
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchPaddingException
+	 * @throws NoSuchProviderException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IOException
+	 */
+	public static void decrypt(InputStream in, OutputStream out, byte[] keyBytes, byte[] ivBytes)
+			throws NoSuchAlgorithmException, NoSuchPaddingException,
+			NoSuchProviderException, InvalidKeyException,
+			InvalidAlgorithmParameterException, IOException {
+		
+		SecretKeySpec key = CryptoTools.getSymmetricKey(keyBytes);
+		IvParameterSpec ivSpec = new IvParameterSpec(CryptoTools.initIvBytes(1, ivBytes));
+		
+		Cipher cipher = CryptoTools.getDefaultSymmetricCipher();
+		cipher.init(Cipher.DECRYPT_MODE,  key, ivSpec);
+		
+		in = new CipherInputStream(in, cipher);
+		int count = 0;
+		byte[] buffer = new byte[1024];
+
+		while ((count = in.read(buffer)) >= 0) {
+			out.write(buffer, 0, count);
+		}
 	}
 
 }
