@@ -18,7 +18,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 public class CryptoTools {
-	// TODO Comment on variables
+	// Session variables
 	private static final String DEFAULT_PROVIDER = "BC";
 	
 	private static final String DEFAULT_MESSAGEDIGEST_ALGORITHM = "SHA-512";
