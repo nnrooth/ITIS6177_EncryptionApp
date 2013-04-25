@@ -100,8 +100,6 @@ public class Encrypt {
 			out = new FileOutputStream(digestFile);
 			out.write(mdCipher); out.close();
 
-			System.out.printf("[+] Cipher File Size is %s\n", cipherFile.length()); // TODO Remove me
-			
 			// Pass files to Dropbox
 			Dropbox.upload(cipherFile); cipherFile.delete();
 			Dropbox.upload(digestFile); digestFile.delete();

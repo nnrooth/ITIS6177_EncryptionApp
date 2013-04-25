@@ -16,7 +16,22 @@ import utils.CryptoTools;
 
 public class Asymmetric {
 
-	// TODO Comment on method
+	/**
+	 * Encrypts a byte array using the key
+	 * 
+	 * @param cipherBytes
+	 * @param keyBytes
+	 * 
+	 * @return
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidKeyException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws InvalidKeySpecException
+	 */
 	public static byte[] encrypt(byte[] dataBytes, byte[] keyBytes)
 			throws NoSuchAlgorithmException, NoSuchProviderException,
 			NoSuchPaddingException, InvalidKeyException,
@@ -34,7 +49,22 @@ public class Asymmetric {
 		return cipherBytes;
 	}
 	
-	// TODO Comment on method
+	/**
+	 * Decrypts a byte array using the key
+	 * 
+	 * @param cipherBytes
+	 * @param keyBytes
+	 * 
+	 * @return
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidKeyException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws InvalidKeySpecException
+	 */
 	public static byte[] decrypt(byte[] cipherBytes, byte[] keyBytes)
 			throws NoSuchAlgorithmException, NoSuchProviderException,
 			NoSuchPaddingException, InvalidKeyException,

@@ -32,17 +32,36 @@ public class CryptoTools {
 	private static final String DEFAULT_ASYMMETRIC_PADDING_STATE = "PKCS1Padding";
 	private static final int 	DEFAULT_ASYMMETRIC_KEY_SIZE = 2048;
 	
-	// TODO Comment on method
+	/**
+	 * Returns a string containing the default provider
+	 * 
+	 * @return Default provider
+	 */
 	public static String getDefaultProvider() { return DEFAULT_PROVIDER; }
 	
-	// TODO Comment on method
+	/**
+	 * Returns a MessageDigest object created using default values
+	 * 
+	 * @return Default MessageDigest Object
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 */
 	public static MessageDigest getDefaultMessageDigest() 
 			throws NoSuchAlgorithmException, NoSuchProviderException {
 		
 		return MessageDigest.getInstance(DEFAULT_MESSAGEDIGEST_ALGORITHM, DEFAULT_PROVIDER);
 	}
 	
-	// TODO Comment on method
+	/**
+	 * Returns the default Cipher used for symmetric encryption
+	 * 
+	 * @return
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchPaddingException
+	 * @throws NoSuchProviderException
+	 */
 	public static Cipher getDefaultSymmetricCipher()
 			throws NoSuchAlgorithmException, NoSuchPaddingException,
 			NoSuchProviderException {
@@ -56,7 +75,15 @@ public class CryptoTools {
 		return Cipher.getInstance(cipherMethod, DEFAULT_PROVIDER);
 	}
 	
-	// TODO Comment on method
+	/**
+	 * Returns the default cipher used for Asymmetric Encryption
+	 * 
+	 * @return
+	 * 
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchPaddingException
+	 */
 	public static Cipher getDefaultAsymmetricCipher()
 			throws NoSuchAlgorithmException, NoSuchProviderException,
 			NoSuchPaddingException {
@@ -70,7 +97,15 @@ public class CryptoTools {
 		return Cipher.getInstance(cipherMethod, DEFAULT_PROVIDER);
 	}
 
-	// TODO Comment on method
+	/**
+	 * Accepts a byte array representing an initial value
+	 * Initializes the iv using standard algorithm
+	 * 
+	 * @param messageNumber
+	 * @param ivBytes
+	 * 
+	 * @return Initialized IV byte array
+	 */
 	public static byte[] initIvBytes(int messageNumber, byte[] ivBytes) {
 		ivBytes[0] = (byte) (messageNumber >> 24);
 		ivBytes[1] = (byte) (messageNumber >> 16);
