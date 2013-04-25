@@ -8,3 +8,10 @@
 .keys/
 .pik
 .puk
+
+.tokens/
+.key
+.secret
+
+.temp/
+downloads/
