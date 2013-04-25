@@ -152,7 +152,6 @@ public class Dropbox {
 			System.out.printf("[-] Err: Dropbox Link is not established\n");
 		} catch (DropboxException e) {
 			System.out.printf("[-] Err: Failed downloading %s from dropbox\n", file.getName());
-			e.printStackTrace();
 		} catch (FileNotFoundException e) {
 			System.out.printf("[-] Err: Unable to locate remote file %s\n", file.getName());
 		} finally {
