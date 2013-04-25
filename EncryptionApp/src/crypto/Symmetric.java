@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -178,5 +179,31 @@ public class Symmetric {
 		
 		in.close(); out.close();
 	}
+	
+	public static void decrypt(InputStream in, File dataFile, byte[] keyBytes, byte[] ivBytes)
+			throws NoSuchAlgorithmException, NoSuchPaddingException,
+			NoSuchProviderException, InvalidKeyException,
+			InvalidAlgorithmParameterException, IOException {
+		
+		CipherInputStream cIn = null;
+		FileOutputStream  out = null;
+		
+		SecretKeySpec key = CryptoTools.getSymmetricKey(keyBytes);
+		IvParameterSpec ivSpec = new IvParameterSpec(CryptoTools.initIvBytes(1, ivBytes));
+		
+		Cipher cipher = CryptoTools.getDefaultSymmetricCipher();
+		cipher.init(Cipher.DECRYPT_MODE,  key, ivSpec);
+		
+		cIn = new CipherInputStream(in, cipher);
+		out = new FileOutputStream(dataFile);
+		
+		int bytesRead = 0;
+		byte[] buffer = new byte[1024];
 
+		while ((bytesRead = cIn.read(buffer)) >= 0) {
+			out.write(buffer, 0, bytesRead);
+		}
+		
+		cIn.close(); in.close(); out.close();
+	}
 }

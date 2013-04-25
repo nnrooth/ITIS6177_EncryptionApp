@@ -98,8 +98,6 @@ public class Dropbox {
 		if (dbApi == null && accessTokens == null) {
 			if (!loadSession()) {
 				WebAuthSession session = DropboxTools.getAuthSession();
-				dbApi = new DropboxAPI<WebAuthSession>(session);
-				
 				try {
 					WebAuthSession.WebAuthInfo info = session.getAuthInfo();
 					
@@ -122,6 +120,7 @@ public class Dropbox {
 					
 					session.retrieveWebAccessToken(info.requestTokenPair);
 					accessTokens = session.getAccessTokenPair();
+					dbApi = new DropboxAPI<WebAuthSession>(session);
 					dbApi.getSession().setAccessTokenPair(accessTokens);
 					saveSession();
 					
@@ -139,6 +138,10 @@ public class Dropbox {
 	
 	public static DropboxInputStream getDownloadStream(File file)
 			throws DropboxException {
+		
+		if (!connected()) {
+			connect();
+		}
 		
 		DropboxInputStream inputStream = null;
 		String readPath = DEFAULT_PATH + file.getName();
@@ -207,5 +210,4 @@ public class Dropbox {
 			}
 		}
 	}
-		
 }

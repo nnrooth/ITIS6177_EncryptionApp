@@ -52,7 +52,7 @@ public class Decrypt {
 			writePath = BaseTools.getDefaultDownloadDir();
 			
 			// Setup files for read/write
-			cipherWrite = tempPath + fileName + ".ct";
+			cipherWrite = /*tempPath + TODO Remove me*/ fileName + ".ct";
 			digestWrite = tempPath + fileName + ".md";
 			dataWrite = writePath + fileName;
 			
@@ -98,12 +98,14 @@ public class Decrypt {
 			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
 			
 			// Download cipher file
-			Dropbox.download(cipherFile);
+//			Dropbox.download(cipherFile); TODO Remove me
+			in = Dropbox.getDownloadStream(cipherFile);
 			
 			// Decrypt file
-			Symmetric.decrypt(cipherFile, dataFile, keyBytes, ivBytes);
+			Symmetric.decrypt(in, dataFile, keyBytes, ivBytes);
 			
-			cipherFile.delete();
+//			cipherFile.delete(); TODO Remove me
+			in.close();
 			System.out.printf("[+] Download Complete\n");
 		
 			// Error handling
