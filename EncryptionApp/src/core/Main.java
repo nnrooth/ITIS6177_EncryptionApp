@@ -65,7 +65,7 @@ public class Main {
 			state = State.HELP;
 		else if (arg.toLowerCase().equals("stop") || arg.toLowerCase().equals("quit")
 			  || arg.toLowerCase().equals("end")  || arg.toLowerCase().equals("kill")
-			  || arg.toLowerCase().equals("exit"))
+			  || arg.toLowerCase().equals("exit") || arg.equals("*"))
 			state = State.STOP;
 		else
 			state = State.RUN;

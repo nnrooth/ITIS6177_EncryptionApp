@@ -1,5 +1,7 @@
 package dropbox;
 
+import gui.LinkFrame;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -100,6 +102,11 @@ public class Dropbox {
 				
 				try {
 					WebAuthSession.WebAuthInfo info = session.getAuthInfo();
+					
+					LinkFrame linkFrame = new LinkFrame();
+					linkFrame.setLink(info.url);
+					linkFrame.display();
+					
 					System.out.printf("[1] Go to: %s\n", info.url);
 					System.out.printf("[2] Allow access to this app\n");
 					System.out.printf("[3] Press ENTER\n");
@@ -107,7 +114,12 @@ public class Dropbox {
 					try {
 						while (System.in.read() != '\n') {}
 					} catch (IOException e) {}
-				
+
+					if (linkFrame != null) {
+						linkFrame.hide();
+						linkFrame = null;
+					}
+					
 					session.retrieveWebAccessToken(info.requestTokenPair);
 					accessTokens = session.getAccessTokenPair();
 					dbApi.getSession().setAccessTokenPair(accessTokens);
