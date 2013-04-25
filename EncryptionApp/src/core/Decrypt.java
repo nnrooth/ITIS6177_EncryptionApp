@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +23,7 @@ import dropbox.Dropbox;
 
 public class Decrypt {
 
-	public static void main(String[] args) {
+	public static void run() {
 		// Setup for encryption process
 		System.out.printf("[+] TNO Decryption Tool\n");
 		
@@ -37,11 +36,11 @@ public class Decrypt {
 		String digestWrite, cipherWrite, dataWrite;
 		
 		File digestFile, cipherFile, dataFile;
-		RandomAccessFile fin; // fin - Input file
+		File privateKeyFile; // File representing private key
 		
 		byte[] digest, keyBytes, ivBytes;
 		
-		String pikDir, pik; byte[] pikBytes, mdCipher;
+		String privateKeyDir, privateKey; byte[] privateKeyBytes, mdCipherBytes;
 		
 		int keySize;
 		
@@ -52,8 +51,8 @@ public class Decrypt {
 			tempPath = BaseTools.getDefaultTempDir();
 			writePath = BaseTools.getDefaultDownloadDir();
 			
+			// Setup files for read/write
 			cipherWrite = tempPath + fileName + ".ct";
-			
 			digestWrite = tempPath + fileName + ".md";
 			dataWrite = writePath + fileName;
 			
@@ -66,31 +65,31 @@ public class Decrypt {
 			System.out.printf("[*] Attempting Decryption\n");
 			
 			// Check for key pair
-			pikDir = BaseTools.getDefaultKeyDir();
-			pik = pikDir + BaseTools.getDefaultKeyFileNames()[1];
+			privateKeyDir = BaseTools.getDefaultKeyDir();
+			privateKey = privateKeyDir + BaseTools.getDefaultKeyFileNames()[1];
 			
-			if (!new File(pik).exists()) {
+			if (!new File(privateKey).exists()) {
 				System.out.printf("[-] No key pair found!\n");
-				KeyGen.main(null);
+				KeyGen.run();
 			}
 			
 			// Read in the private key
-			fin = new RandomAccessFile(pik, "r");
-			pikBytes = new byte[(int) fin.length()];
-			fin.read(pikBytes);
-			fin.close();
+			privateKeyFile = new File(privateKey);
+			privateKeyBytes = new byte[(int) privateKeyFile.length()];
+			in = new FileInputStream(privateKeyFile);
+			in.read(privateKeyBytes); in.close();
 			
 			// Download cipher of key to temp dir
 			Dropbox.download(digestFile);
 			
 			// Read in cipher of key
 			in = new FileInputStream(digestFile);
-			mdCipher = new byte[(int) digestFile.length()];
-			in.read(mdCipher); in.close();
+			mdCipherBytes = new byte[(int) digestFile.length()];
+			in.read(mdCipherBytes); in.close();
 			digestFile.delete();
 			
 			// Decrypt message digest with private key
-			digest = Asymmetric.decrypt(mdCipher, pikBytes);
+			digest = Asymmetric.decrypt(mdCipherBytes, privateKeyBytes);
 			keySize = 32 /* bytes */;
 			 /* 128 bits */
 			

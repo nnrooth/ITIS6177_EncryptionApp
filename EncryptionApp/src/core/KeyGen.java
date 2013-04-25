@@ -13,34 +13,41 @@ import utils.CryptoTools;
 
 public class KeyGen {
 	
-	public static void main(String args[]) {
+	public static void run() {
 		
 		System.out.printf("[+] TNO Key Generator Tool\n");
 		
-		String fop; // fop - File output path
-		FileOutputStream fos; // fos - File output stream
-		KeyPair keyPair;
-		String puk, pik;
-		byte[] publicKey, privateKey;
+		// Create method variables
+		String writePath; // Path to store keys
+		FileOutputStream out; // File output stream
+		KeyPair keyPair; // RSA key pair object
+		String publicKey, privateKey; // fileNames for RSA keys
+		byte[] publicKeyBytes, privateKeyBytes; // RSA key bytes
+		
+		// Get default values for storing keys
+		writePath = BaseTools.getDefaultKeyDir();
+		publicKey = BaseTools.getDefaultKeyFileNames()[0];
+		privateKey = BaseTools.getDefaultKeyFileNames()[1];
+		
+		// Create file objects for keys
+		File publicKeyFile = new File(writePath + publicKey);
+		File privateKeyFile = new File(writePath + privateKey);
 		
 		try {
-			keyPair = CryptoTools.newAsymmetricKeyPair();
-			publicKey = keyPair.getPublic().getEncoded();
-			privateKey = keyPair.getPrivate().getEncoded();
-			
-			fop = BaseTools.getDefaultKeyDir();
-			puk = BaseTools.getDefaultKeyFileNames()[0];
-			pik = BaseTools.getDefaultKeyFileNames()[1];
-			
-			File pukFile = new File(fop + puk);
-			File pikFile = new File(fop + pik);
-			
-			if (!pukFile.exists() && !pikFile.exists()) {
-				fos = new FileOutputStream(pukFile); fos.write(publicKey); fos.close();
-				fos = new FileOutputStream(pikFile); fos.write(privateKey); fos.close();
+			// Check for existing keys
+			if (!publicKeyFile.exists() && !privateKeyFile.exists()) {
+				// Generate keys
+				keyPair = CryptoTools.newAsymmetricKeyPair();
+				publicKeyBytes = keyPair.getPublic().getEncoded();
+				privateKeyBytes = keyPair.getPrivate().getEncoded();
 				
-				pukFile.setReadOnly();
-				pikFile.setReadOnly();
+				// Write key files
+				out = new FileOutputStream(publicKeyFile); out.write(publicKeyBytes); out.close();
+				out = new FileOutputStream(privateKeyFile); out.write(privateKeyBytes); out.close();
+				
+				// Set key files as read only
+				publicKeyFile.setReadOnly();
+				privateKeyFile.setReadOnly();
 				
 				System.out.printf("[+] Key Pair Created\n");
 			} else {

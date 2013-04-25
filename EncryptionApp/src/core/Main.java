@@ -85,15 +85,15 @@ public class Main {
 			break;
 		
 		case ENCRYPT:
-			Encrypt.main(null);
+			Encrypt.run();
 			break;
 			
 		case DECRYPT:
-			Decrypt.main(null);
+			Decrypt.run();
 			break;
 			
 		case KEYGEN:
-			KeyGen.main(null);
+			KeyGen.run();
 			break;
 			
 		case CONNECT:

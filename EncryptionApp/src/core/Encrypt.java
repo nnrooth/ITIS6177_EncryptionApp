@@ -1,50 +1,50 @@
 package core;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.io.FileOutputStream;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+
+import utils.BaseTools;
+import utils.CryptoTools;
 import crypto.Asymmetric;
 import crypto.Hash;
 import crypto.Symmetric;
 import dropbox.Dropbox;
-import utils.CryptoTools;
-import utils.BaseTools;
 
 public class Encrypt {
 
-	public static void main(String[] args) {
-		// Setup for encryption process
+	public static void run() {
 		System.out.printf("[+] TNO Encryption Tool\n");
 		
+		// Setup for encryption process
 		InputStream in = null; OutputStream out = null;
 		
-		String filePath;
-		RandomAccessFile fin; // fin - Input file
+		String filePath; // Path of file to be encrypted
 		
 		String writePath, fileName;
 		String cipherWrite; String digestWrite;
+		String publicKeyDir, publicKey;
 		
+		byte[] publicKeyBytes, mdCipherBytes; // Byte arrays used for encrypting file digest
+		byte[] digest, keyBytes, ivBytes; // Byte arrays used for encryption file
+				
+		File publicKeyFile; // File reprsenting public key
 		File dataFile, cipherFile, digestFile;
 		
-		byte[] digest, keyBytes, ivBytes;
-		
-		String pukDir, puk; byte[] pukBytes, mdCipher;
-		
-		int keySize;
+		int keySize; // Key size to use for AES encryption
 		
 		try {
 			// Get read path for file from user
@@ -65,20 +65,20 @@ public class Encrypt {
 			// Start encryption process
 			System.out.printf("[*] Attempting Encryption\n");
 						
-			pukDir = BaseTools.getDefaultKeyDir();
-			puk = pukDir + BaseTools.getDefaultKeyFileNames()[0];
+			publicKeyDir = BaseTools.getDefaultKeyDir();
+			publicKey = publicKeyDir + BaseTools.getDefaultKeyFileNames()[0];
 			
-			// Check for key pair
-			if (!new File(puk).exists()) {
+			// Check for public key
+			publicKeyFile = new File(publicKey);
+			if (!publicKeyFile.exists()) {
 				System.out.printf("[-] No key pair found!\n");
-				KeyGen.main(null);
+				KeyGen.run();
 			}
 			
 			// Read in the public key
-			fin = new RandomAccessFile(puk, "r");
-			pukBytes = new byte[(int) fin.length()];
-			fin.read(pukBytes);
-			fin.close();
+			publicKeyBytes = new byte[(int) publicKeyFile.length()];
+			in = new FileInputStream(publicKeyFile);
+			in.read(publicKeyBytes); in.close();
 			
 			// Create message digest of file
 			in = new FileInputStream(dataFile);
@@ -87,7 +87,7 @@ public class Encrypt {
 					 /* 128 bits */
 			
 			// Encrypt message digest with public key
-			mdCipher = Asymmetric.encrypt(digest, pukBytes); pukBytes = null;
+			mdCipherBytes = Asymmetric.encrypt(digest, publicKeyBytes); publicKeyBytes = null;
 			
 			// Split message digest into key and iv
 			keyBytes = Arrays.copyOf(digest, keySize);
@@ -98,12 +98,13 @@ public class Encrypt {
 			
 			// Store digest temporarily
 			out = new FileOutputStream(digestFile);
-			out.write(mdCipher); out.close();
+			out.write(mdCipherBytes); out.close();
 
 			// Pass files to Dropbox
 			Dropbox.upload(cipherFile); cipherFile.delete();
 			Dropbox.upload(digestFile); digestFile.delete();
-						
+			
+			// Process is complete, notify user
 			System.out.printf("[+] Write Complete\n");
 		
 			// Error handling
