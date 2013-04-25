@@ -1,8 +1,9 @@
 package crypto;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -73,10 +74,13 @@ public class Symmetric {
 	 * @throws InvalidAlgorithmParameterException
 	 * @throws IOException
 	 */
-	public static void encrypt(InputStream in, OutputStream out, byte[] keyBytes, byte[] ivBytes)
+	public static void encrypt(File dataFile, File cipherFile, byte[] keyBytes, byte[] ivBytes)
 			throws NoSuchAlgorithmException, NoSuchPaddingException,
 			NoSuchProviderException, InvalidKeyException,
 			InvalidAlgorithmParameterException, IOException {
+		
+		FileInputStream in = null;
+		CipherOutputStream out = null;
 		
 		SecretKeySpec key = CryptoTools.getSymmetricKey(keyBytes);
 		IvParameterSpec ivSpec = new IvParameterSpec(CryptoTools.initIvBytes(1, ivBytes));
@@ -84,7 +88,8 @@ public class Symmetric {
 		Cipher cipher = CryptoTools.getDefaultSymmetricCipher();
 		cipher.init(Cipher.ENCRYPT_MODE,  key, ivSpec);
 		
-		out = new CipherOutputStream(out, cipher);
+		in = new FileInputStream(dataFile);
+		out = new CipherOutputStream(new FileOutputStream(cipherFile), cipher);
 		
 		int bytesRead = 0;
 		byte[] buffer = new byte[1024];
@@ -92,6 +97,8 @@ public class Symmetric {
 		while ((bytesRead = in.read(buffer)) >= 0) {
 			out.write(buffer, 0, bytesRead);
 		}
+		
+		in.close(); out.close();
 	}
 	
 	/**
@@ -145,10 +152,13 @@ public class Symmetric {
 	 * @throws InvalidAlgorithmParameterException
 	 * @throws IOException
 	 */
-	public static void decrypt(InputStream in, OutputStream out, byte[] keyBytes, byte[] ivBytes)
+	public static void decrypt(File cipherFile, File dataFile, byte[] keyBytes, byte[] ivBytes)
 			throws NoSuchAlgorithmException, NoSuchPaddingException,
 			NoSuchProviderException, InvalidKeyException,
 			InvalidAlgorithmParameterException, IOException {
+		
+		CipherInputStream in = null;
+		FileOutputStream out = null;
 		
 		SecretKeySpec key = CryptoTools.getSymmetricKey(keyBytes);
 		IvParameterSpec ivSpec = new IvParameterSpec(CryptoTools.initIvBytes(1, ivBytes));
@@ -156,13 +166,17 @@ public class Symmetric {
 		Cipher cipher = CryptoTools.getDefaultSymmetricCipher();
 		cipher.init(Cipher.DECRYPT_MODE,  key, ivSpec);
 		
-		in = new CipherInputStream(in, cipher);
+		in = new CipherInputStream(new FileInputStream(cipherFile), cipher);
+		out = new FileOutputStream(dataFile);
+		
 		int bytesRead = 0;
 		byte[] buffer = new byte[1024];
 
 		while ((bytesRead = in.read(buffer)) >= 0) {
 			out.write(buffer, 0, bytesRead);
 		}
+		
+		in.close(); out.close();
 	}
 
 }

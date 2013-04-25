@@ -25,7 +25,7 @@ public class CryptoTools {
 	
 	private static final String DEFAULT_SYMMETRIC_ALGORITHM = "AES";
 	private static final String DEFAULT_SYMMETRIC_MODE = "CTR";
-	private static final String DEFAULT_SYMMETRIC_PADDING_STATE = /*"NoPadding"*/ "PKCS5Padding";
+	private static final String DEFAULT_SYMMETRIC_PADDING_STATE = "NoPadding";
 	
 	private static final String DEFAULT_ASYMMETRIC_ALGORITHM = "RSA";
 	private static final String DEFAULT_ASYMMETRIC_MODE = "NONE";

@@ -1,27 +1,26 @@
 package core;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.util.Arrays;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.io.FileOutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+
+import utils.BaseTools;
+import utils.CryptoTools;
 import crypto.Asymmetric;
 import crypto.Symmetric;
 import dropbox.Dropbox;
-import utils.CryptoTools;
-import utils.BaseTools;
 
 public class Decrypt {
 
@@ -29,7 +28,7 @@ public class Decrypt {
 		// Setup for encryption process
 		System.out.printf("[+] TNO Decryption Tool\n");
 		
-		InputStream in = null; OutputStream out = null;
+		InputStream in = null;
 		
 		String fileName;
 		String tempPath;
@@ -53,6 +52,16 @@ public class Decrypt {
 			tempPath = BaseTools.getDefaultTempDir();
 			writePath = BaseTools.getDefaultDownloadDir();
 			
+			cipherWrite = tempPath + fileName + ".ct";
+			
+			digestWrite = tempPath + fileName + ".md";
+			dataWrite = writePath + fileName;
+			
+			cipherFile = new File(cipherWrite);
+			digestFile = new File(digestWrite);
+			dataFile = new File(dataWrite);
+			
+			
 			// Start encryption process
 			System.out.printf("[*] Attempting Decryption\n");
 			
@@ -72,9 +81,6 @@ public class Decrypt {
 			fin.close();
 			
 			// Download cipher of key to temp dir
-			digestWrite = tempPath + fileName + ".md";
-			digestFile = new File(digestWrite);
-			
 			Dropbox.download(digestFile);
 			
 			// Read in cipher of key
@@ -92,19 +98,11 @@ public class Decrypt {
 			keyBytes = Arrays.copyOf(digest, keySize);
 			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
 			
-			dataWrite = writePath + fileName;
-			out = new FileOutputStream(dataWrite);
-			
 			// Download cipher file
-			cipherWrite = tempPath + fileName + ".ct";
-			cipherFile = new File(cipherWrite);
-			
 			Dropbox.download(cipherFile);
 			
 			// Decrypt file
-			in = new FileInputStream(cipherWrite);
-			Symmetric.decrypt(in, out, keyBytes, ivBytes);
-			in.close(); out.close();
+			Symmetric.decrypt(cipherFile, dataFile, keyBytes, ivBytes);
 			
 			cipherFile.delete();
 			System.out.printf("[+] Download Complete\n");

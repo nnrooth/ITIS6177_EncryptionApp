@@ -63,10 +63,9 @@ public class Main {
 		else if (arg.toLowerCase().equals("help") || arg.toLowerCase().equals("info")
 			  || arg.toLowerCase().equals("question") || arg.equals("?"))
 			state = State.HELP;
-		else if (Integer.valueOf(arg) < 0 || Integer.valueOf(arg) > 4)
-			state = State.STOP;
 		else if (arg.toLowerCase().equals("stop") || arg.toLowerCase().equals("quit")
-			  || arg.toLowerCase().equals("end")  || arg.toLowerCase().equals("kill"))
+			  || arg.toLowerCase().equals("end")  || arg.toLowerCase().equals("kill")
+			  || arg.toLowerCase().equals("exit"))
 			state = State.STOP;
 		else
 			state = State.RUN;

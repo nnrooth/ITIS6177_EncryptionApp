@@ -94,10 +94,7 @@ public class Encrypt {
 			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
 						
 			// Encrypt file and store temporarily
-			out = new FileOutputStream(cipherFile);
-			in = new FileInputStream(filePath);
-			Symmetric.encrypt(in, out, keyBytes, ivBytes);
-			in.close(); out.close();
+			Symmetric.encrypt(dataFile, cipherFile, keyBytes, ivBytes);
 			
 			// Store digest temporarily
 			out = new FileOutputStream(digestFile);
