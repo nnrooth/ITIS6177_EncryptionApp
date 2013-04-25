@@ -11,7 +11,6 @@ import utils.DropboxTools;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.DropboxAPI.DropboxInputStream;
-import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.exception.DropboxUnlinkedException;
 import com.dropbox.client2.session.AccessTokenPair;
@@ -174,14 +173,13 @@ public class Dropbox {
 		
 		try {
 			inputStream = new FileInputStream(file);
-			Entry newEntry = dbApi.putFile(
+			dbApi.putFile(
 					writePath,
 					inputStream,
 					fileLength,
 					null, null
 				);
-			System.out.printf("[+] File's Rev: %s\n", newEntry.rev);
-			
+						
 		} catch (DropboxUnlinkedException e) {
 			System.out.printf("[-] Err: Dropbox Link is not established\n");
 		} catch (DropboxException e) {
