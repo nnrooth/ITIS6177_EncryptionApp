@@ -83,8 +83,7 @@ public class Encrypt {
 			// Create message digest of file
 			in = new FileInputStream(dataFile);
 			digest = Hash.run(in); in.close();
-			keySize = 32 /* bytes */;
-					 /* 128 bits */
+			keySize = CryptoTools.getDefaultSymmetricKeySize() /* bits */ / 4;
 			
 			// Encrypt message digest with public key
 			mdCipherBytes = Asymmetric.encrypt(digest, publicKeyBytes); publicKeyBytes = null;

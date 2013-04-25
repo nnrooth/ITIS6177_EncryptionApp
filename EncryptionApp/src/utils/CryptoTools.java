@@ -26,11 +26,12 @@ public class CryptoTools {
 	private static final String DEFAULT_SYMMETRIC_ALGORITHM = "AES";
 	private static final String DEFAULT_SYMMETRIC_MODE = "CTR";
 	private static final String DEFAULT_SYMMETRIC_PADDING_STATE = "NoPadding";
+	private static final int	DEFAULT_SYMMETRIC_KEY_SIZE = 128 /* bits */;
 	
 	private static final String DEFAULT_ASYMMETRIC_ALGORITHM = "RSA";
 	private static final String DEFAULT_ASYMMETRIC_MODE = "NONE";
 	private static final String DEFAULT_ASYMMETRIC_PADDING_STATE = "PKCS1Padding";
-	private static final int 	DEFAULT_ASYMMETRIC_KEY_SIZE = 2048;
+	private static final int 	DEFAULT_ASYMMETRIC_KEY_SIZE = 2048 /* bits */;
 	
 	/**
 	 * Returns a string containing the default provider
@@ -119,6 +120,15 @@ public class CryptoTools {
 		ivBytes[15] = 1;
 		
 		return ivBytes;
+	}
+	
+	/**
+	 * Returns the default symmetric key size in bits
+	 * 
+	 * @return Integer value of default key bit length
+	 */
+	public static int getDefaultSymmetricKeySize() {
+		return DEFAULT_SYMMETRIC_KEY_SIZE;
 	}
 	
 	public static SecretKeySpec getSymmetricKey(byte[] keyBytes) {
