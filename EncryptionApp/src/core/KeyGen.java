@@ -29,15 +29,11 @@ public class KeyGen {
 			privateKey = keyPair.getPrivate().getEncoded();
 			
 			fop = BaseTools.getDefaultKeyDir();
-			System.out.printf("%s\n", fop);
-			
 			puk = BaseTools.getDefaultKeyFileNames()[0];
 			pik = BaseTools.getDefaultKeyFileNames()[1];
 			
 			File pukFile = new File(fop + puk);
-			System.out.printf("%s\n", fop + puk);
 			File pikFile = new File(fop + pik);
-			System.out.printf("%s\n", fop + pik);
 			
 			if (!pukFile.exists() && !pikFile.exists()) {
 				fos = new FileOutputStream(pukFile); fos.write(publicKey); fos.close();

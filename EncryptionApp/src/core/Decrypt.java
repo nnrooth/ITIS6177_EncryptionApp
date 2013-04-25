@@ -1,5 +1,3 @@
-// TODO convert for decryption
-
 package core;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -8,55 +6,60 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.FileOutputStream;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.ShortBufferException;
-
 import crypto.Asymmetric;
 import crypto.Symmetric;
+import dropbox.Dropbox;
 import utils.CryptoTools;
 import utils.BaseTools;
 
 public class Decrypt {
 
 	public static void main(String[] args) {
-		
+		// Setup for encryption process
 		System.out.printf("[+] TNO Decryption Tool\n");
 		
-		String fip; // fip - File input path
+		InputStream in = null; OutputStream out = null;
+		
+		String fileName;
+		String tempPath;
+		String writePath;
+		
+		String digestWrite, cipherWrite, dataWrite;
+		
+		File digestFile, cipherFile, dataFile;
 		RandomAccessFile fin; // fin - Input file
 		
-		String fop; // fop - File output path
-		String fon; // fon - File output name
-		String cipherRead; String digestRead; String plainTextWrite;
-		FileOutputStream fos; // fos - File output stream
+		byte[] digest, keyBytes, ivBytes;
 		
-		byte[] cipherText; byte[] digest;
-		byte[] keyBytes; byte[] ivBytes; 
-		byte[] plainText;
-		
-		String pikDir, pik; byte[] pikBytes; byte[] mdCipher;
+		String pikDir, pik; byte[] pikBytes, mdCipher;
 		
 		int keySize;
 		
-		System.out.printf("[.] Read Path: ");
-		fip = BaseTools.getUserInput();
-		
-		System.out.printf("[*] Attempting Decryption\n");
-		
 		try {
-			// Start decryption process
+			// Get file name from user
+			System.out.printf("[.] File Name: ");
+			fileName = BaseTools.getUserInput();
+			tempPath = BaseTools.getDefaultTempDir();
+			writePath = BaseTools.getDefaultDownloadDir();
 			
+			// Start encryption process
+			System.out.printf("[*] Attempting Decryption\n");
+			
+			// Check for key pair
 			pikDir = BaseTools.getDefaultKeyDir();
 			pik = pikDir + BaseTools.getDefaultKeyFileNames()[1];
 			
-			// Check for key pair
 			if (!new File(pik).exists()) {
 				System.out.printf("[-] No key pair found!\n");
 				KeyGen.main(null);
@@ -68,19 +71,17 @@ public class Decrypt {
 			fin.read(pikBytes);
 			fin.close();
 			
-			// Read in cipher of file
-			cipherRead = fip + ".ct";
-			fin = new RandomAccessFile(cipherRead, "r");
-			cipherText = new byte[(int) fin.length()];
-			fin.read(cipherText);
-			fin.close();
+			// Download cipher of key to temp dir
+			digestWrite = tempPath + fileName + ".md";
+			digestFile = new File(digestWrite);
+			
+			Dropbox.download(digestFile);
 			
 			// Read in cipher of key
-			digestRead = fip + ".md";
-			fin = new RandomAccessFile(digestRead, "r");
-			mdCipher = new byte[(int) fin.length()];
-			fin.read(mdCipher);
-			fin.close();
+			in = new FileInputStream(digestFile);
+			mdCipher = new byte[(int) digestFile.length()];
+			in.read(mdCipher); in.close();
+			digestFile.delete();
 			
 			// Decrypt message digest with private key
 			digest = Asymmetric.decrypt(mdCipher, pikBytes);
@@ -91,23 +92,24 @@ public class Decrypt {
 			keyBytes = Arrays.copyOf(digest, keySize);
 			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
 			
-			plainText = Symmetric.decrypt(cipherText, keyBytes, ivBytes);
+			dataWrite = writePath + fileName;
+			out = new FileOutputStream(dataWrite);
 			
-			System.out.printf("[+] MD : %s\n", BaseTools.toHex(digest));
-			System.out.printf("[+] Key: %s\n", BaseTools.toHex(keyBytes));
-			System.out.printf("[+] IV : %s\n", BaseTools.toHex(ivBytes));
+			// Download cipher file
+			cipherWrite = tempPath + fileName + ".ct";
+			cipherFile = new File(cipherWrite);
 			
-			System.out.printf("[.] Write Path: ");
-			fop = BaseTools.getUserInput();
-			new File(fop).mkdirs();
+			Dropbox.download(cipherFile);
 			
-			fon = new File(fip).getName();
-			plainTextWrite = fop + fon;
-						
-			fos = new FileOutputStream(plainTextWrite); fos.write(plainText); fos.close();
+			// Decrypt file
+			in = new FileInputStream(cipherWrite);
+			Symmetric.decrypt(in, out, keyBytes, ivBytes);
+			in.close(); out.close();
 			
-			System.out.printf("[+] Write Complete\n");
-			
+			cipherFile.delete();
+			System.out.printf("[+] Download Complete\n");
+		
+			// Error handling
 		} catch (FileNotFoundException e) {
 			System.out.printf("[-] Err: File not found\n");
 		} catch (IOException e) {
@@ -120,8 +122,6 @@ public class Decrypt {
 			System.out.printf("[-] Err: Invalid algorithm parameter\n");
 		} catch (IllegalBlockSizeException e) {
 			System.out.printf("[-] Err: Illegal block size\n");
-		} catch (ShortBufferException e) {
-			System.out.printf("[-] Err: Short buffer error\n");
 		} catch (BadPaddingException e) {
 			System.out.printf("[-] Err: Bad padding exception\n");
 		} catch (NoSuchProviderException e) {

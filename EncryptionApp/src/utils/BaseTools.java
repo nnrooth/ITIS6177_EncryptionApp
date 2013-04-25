@@ -33,7 +33,32 @@ public class BaseTools {
 	
 	public static String getDefaultKeyDir() {
 		String dir = System.getProperty("user.dir") + "\\.keys\\";
-		File file = new File(dir); file.mkdir(); file = null;
+		File file = new File(dir); if (!file.exists()) { file.mkdir(); }
+		file = null;
+		
+		return dir;
+	}
+	
+	public static String getDefaultTokenDir() {
+		String dir = System.getProperty("user.dir") + "\\.tokens\\";
+		File file = new File(dir); if (!file.exists()) { file.mkdir(); }
+		file = null;
+		
+		return dir;
+	}
+	
+	public static String getDefaultTempDir() {
+		String dir = System.getProperty("user.dir") + "\\.temp\\";
+		File file = new File(dir); if (!file.exists()) { file.mkdir(); }
+		file = null;
+		
+		return dir;
+	}
+	
+	public static String getDefaultDownloadDir() {
+		String dir = System.getProperty("user.dir") + "\\downloads\\";
+		File file = new File(dir); if (!file.exists()) { file.mkdir(); }
+		file = null;
 		
 		return dir;
 	}

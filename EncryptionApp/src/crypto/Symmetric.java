@@ -85,11 +85,12 @@ public class Symmetric {
 		cipher.init(Cipher.ENCRYPT_MODE,  key, ivSpec);
 		
 		out = new CipherOutputStream(out, cipher);
-		int count = 0;
+		
+		int bytesRead = 0;
 		byte[] buffer = new byte[1024];
 
-		while ((count = in.read(buffer)) >= 0) {
-			out.write(buffer, 0, count);
+		while ((bytesRead = in.read(buffer)) >= 0) {
+			out.write(buffer, 0, bytesRead);
 		}
 	}
 	
@@ -156,11 +157,11 @@ public class Symmetric {
 		cipher.init(Cipher.DECRYPT_MODE,  key, ivSpec);
 		
 		in = new CipherInputStream(in, cipher);
-		int count = 0;
+		int bytesRead = 0;
 		byte[] buffer = new byte[1024];
 
-		while ((count = in.read(buffer)) >= 0) {
-			out.write(buffer, 0, count);
+		while ((bytesRead = in.read(buffer)) >= 0) {
+			out.write(buffer, 0, bytesRead);
 		}
 	}
 

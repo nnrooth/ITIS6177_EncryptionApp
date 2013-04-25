@@ -1,5 +1,8 @@
 package core;
 
+import java.io.IOException;
+
+import dropbox.Dropbox;
 import utils.BaseTools;
 
 public class Main {
@@ -29,13 +32,17 @@ public class Main {
 	}
 	
 	private enum State {
-		RUN, ENCRYPT, DECRYPT, KEYGEN, STOP
+		RUN, ENCRYPT, DECRYPT, KEYGEN, CONNECT, HELP, CLEAR, STOP
 	}
 	
 	private static State getState(String arg) {
 		State state;
 		
-		if (arg.equals(String.valueOf(1)))
+		if (arg.isEmpty())
+			state = State.RUN;
+		else if (arg.toLowerCase().equals("clr") || arg.toLowerCase().equals("clear"))
+			state = State.CLEAR;
+		else if (arg.equals(String.valueOf(1)))
 			state = State.ENCRYPT;
 		else if (arg.toLowerCase().equals("encrypt"))
 			state = State.ENCRYPT;
@@ -47,8 +54,22 @@ public class Main {
 			state = State.KEYGEN;
 		else if (arg.toLowerCase().equals("keygen"))
 			state = State.KEYGEN;
-		else
+		else if (arg.equals(String.valueOf(4)))
+			state = State.CONNECT;
+		else if (arg.toLowerCase().equals("connect"))
+			state = State.CONNECT;
+		else if (arg.equals(String.valueOf(0)))
+			state = State.HELP;
+		else if (arg.toLowerCase().equals("help") || arg.toLowerCase().equals("info")
+			  || arg.toLowerCase().equals("question") || arg.equals("?"))
+			state = State.HELP;
+		else if (Integer.valueOf(arg) < 0 || Integer.valueOf(arg) > 4)
 			state = State.STOP;
+		else if (arg.toLowerCase().equals("stop") || arg.toLowerCase().equals("quit")
+			  || arg.toLowerCase().equals("end")  || arg.toLowerCase().equals("kill"))
+			state = State.STOP;
+		else
+			state = State.RUN;
 		
 		return state;
 	}
@@ -56,16 +77,32 @@ public class Main {
 	private static void doState(State state) {
 		switch (state) {
 		
+		case CLEAR:
+			try {
+				Runtime.getRuntime().exec("cls");
+			} catch (IOException e) {
+				System.out.printf("[-] Unable to clear screen\n");
+			}
+			break;
+		
 		case ENCRYPT:
-			EncryptV2.main(null);
+			Encrypt.main(null);
 			break;
 			
 		case DECRYPT:
-			DecryptV2.main(null);
+			Decrypt.main(null);
 			break;
 			
 		case KEYGEN:
 			KeyGen.main(null);
+			break;
+			
+		case CONNECT:
+			Dropbox.connect();
+			break;
+			
+		case HELP:
+			displayHelp();
 			break;
 		
 		case STOP:
@@ -78,4 +115,15 @@ public class Main {
 		}
 	}
 
+	private static void displayHelp() {
+		System.out.printf(
+				"[0] Help/Info\n" +	
+				"[1] Encrypt\n" +
+				"[2] Decrypt\n" +
+				"[3] Generate RSA Key Pair\n" +
+				"[4] Establish Session with Dropbox\n" +
+				"[*] Quit\n"
+			);
+	}
+	
 }

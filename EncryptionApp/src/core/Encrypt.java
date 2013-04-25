@@ -6,19 +6,21 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.FileOutputStream;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.ShortBufferException;
-
 import crypto.Asymmetric;
 import crypto.Hash;
 import crypto.Symmetric;
+import dropbox.Dropbox;
 import utils.CryptoTools;
 import utils.BaseTools;
 
@@ -28,29 +30,41 @@ public class Encrypt {
 		// Setup for encryption process
 		System.out.printf("[+] TNO Encryption Tool\n");
 		
-		String fip; // fip - File input path
+		InputStream in = null; OutputStream out = null;
+		
+		String filePath;
 		RandomAccessFile fin; // fin - Input file
 		
-		String fop; // fop - File output path
+		String writePath, fileName;
 		String cipherWrite; String digestWrite;
-		FileOutputStream fos; // fos - File output stream
 		
-		byte[] plainText; byte[] digest;
-		byte[] keyBytes; byte[] ivBytes; 
-		byte[] cipherText;
+		File dataFile, cipherFile, digestFile;
 		
-		String pukDir, puk; byte[] pukBytes; byte[] mdCipher;
+		byte[] digest, keyBytes, ivBytes;
+		
+		String pukDir, puk; byte[] pukBytes, mdCipher;
 		
 		int keySize;
 		
-		System.out.printf("[.] Read Path: ");
-		fip = BaseTools.getUserInput();
-		
-		System.out.printf("[*] Attempting Encryption\n");
-		
 		try {
-			// Start encryption process
+			// Get read path for file from user
+			System.out.printf("[.] Read Path: ");
+			filePath = BaseTools.getUserInput();
+			writePath = BaseTools.getDefaultTempDir();
 			
+			// Get the file's name
+			fileName = new File(filePath).getName();
+			cipherWrite = writePath + fileName + ".ct";
+			digestWrite = writePath + fileName + ".md";
+			
+			// Create new files for read/write
+			dataFile = new File(filePath);
+			cipherFile = new File(cipherWrite);
+			digestFile = new File(digestWrite);
+			
+			// Start encryption process
+			System.out.printf("[*] Attempting Encryption\n");
+						
 			pukDir = BaseTools.getDefaultKeyDir();
 			puk = pukDir + BaseTools.getDefaultKeyFileNames()[0];
 			
@@ -66,46 +80,35 @@ public class Encrypt {
 			fin.read(pukBytes);
 			fin.close();
 			
-			// Read in the file
-			fin = new RandomAccessFile(fip, "r");
-			plainText = new byte[(int) fin.length()];
-			fin.read(plainText);
-			fin.close();
-			
 			// Create message digest of file
-			digest = Hash.run(plainText);
+			in = new FileInputStream(dataFile);
+			digest = Hash.run(in); in.close();
 			keySize = 32 /* bytes */;
 					 /* 128 bits */
 			
 			// Encrypt message digest with public key
-			mdCipher = Asymmetric.encrypt(digest, pukBytes);
+			mdCipher = Asymmetric.encrypt(digest, pukBytes); pukBytes = null;
 			
 			// Split message digest into key and iv
 			keyBytes = Arrays.copyOf(digest, keySize);
 			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
+						
+			// Encrypt file and store temporarily
+			out = new FileOutputStream(cipherFile);
+			in = new FileInputStream(filePath);
+			Symmetric.encrypt(in, out, keyBytes, ivBytes);
+			in.close(); out.close();
 			
-			// Encrypt file
-			cipherText = Symmetric.encrypt(plainText, keyBytes, ivBytes);
+			// Store digest temporarily
+			out = new FileOutputStream(digestFile);
+			out.write(mdCipher); out.close();
+
+			System.out.printf("[+] Cipher File Size is %s\n", cipherFile.length()); // TODO Remove me
 			
-			// Display results to user
-			System.out.printf("[+] MD : %s\n", BaseTools.toHex(digest));
-			System.out.printf("[+] Key: %s\n", BaseTools.toHex(keyBytes));
-			System.out.printf("[+] IV : %s\n", BaseTools.toHex(ivBytes));
-			
-			// Get write path for file from user
-			System.out.printf("[.] Write Path: ");
-			fop = BaseTools.getUserInput();
-			new File(fop).mkdirs();
-			
-			// Get the file's name
-			String fileName = new File(fip).getName();
-			cipherWrite = fop + fileName + ".ct";
-			digestWrite = fop + fileName + ".md";
-			
-			// Write cipher of file and cipher of key
-			fos = new FileOutputStream(cipherWrite); fos.write(cipherText); fos.close();
-			fos = new FileOutputStream(digestWrite); fos.write(mdCipher); fos.close();
-			
+			// Pass files to Dropbox
+			Dropbox.upload(cipherFile); cipherFile.delete();
+			Dropbox.upload(digestFile); digestFile.delete();
+						
 			System.out.printf("[+] Write Complete\n");
 		
 			// Error handling
@@ -121,8 +124,6 @@ public class Encrypt {
 			System.out.printf("[-] Err: Invalid algorithm parameter\n");
 		} catch (IllegalBlockSizeException e) {
 			System.out.printf("[-] Err: Illegal block size\n");
-		} catch (ShortBufferException e) {
-			System.out.printf("[-] Err: Short buffer error\n");
 		} catch (BadPaddingException e) {
 			System.out.printf("[-] Err: Bad padding exception\n");
 		} catch (NoSuchProviderException e) {
