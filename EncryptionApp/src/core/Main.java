@@ -1,27 +1,32 @@
 package core;
 
 import java.io.IOException;
+import java.security.Security;
 
-import dropbox.Dropbox;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import utils.BaseTools;
+import dropbox.Dropbox;
 
 public class Main {
 
 	private static String tag = "Trust No One";
-	
+
 	public static void main(String[] args) {
+		Security.addProvider(new BouncyCastleProvider());
+
 		State state;
 		String input;
-		
+
 		System.out.printf("[+] TNO Encryption/Decryption Tool\n");
-		
+
 		do {
 			System.out.printf("\n[.] Instructions: ");
 			input = BaseTools.getUserInput();
 			System.out.println();
-			
+
 			state = getState(input);
-			
+
 			try {
 				doState(state);
 			} catch (Exception e) {
@@ -30,17 +35,18 @@ public class Main {
 
 		} while (state != State.STOP);
 	}
-	
+
 	private enum State {
 		RUN, ENCRYPT, DECRYPT, KEYGEN, CONNECT, HELP, CLEAR, STOP
 	}
-	
+
 	private static State getState(String arg) {
 		State state;
-		
+
 		if (arg.isEmpty())
 			state = State.RUN;
-		else if (arg.toLowerCase().equals("clr") || arg.toLowerCase().equals("clear"))
+		else if (arg.toLowerCase().equals("clr")
+				|| arg.toLowerCase().equals("clear"))
 			state = State.CLEAR;
 		else if (arg.equals(String.valueOf(1)))
 			state = State.ENCRYPT;
@@ -60,22 +66,25 @@ public class Main {
 			state = State.CONNECT;
 		else if (arg.equals(String.valueOf(0)))
 			state = State.HELP;
-		else if (arg.toLowerCase().equals("help") || arg.toLowerCase().equals("info")
-			  || arg.toLowerCase().equals("question") || arg.equals("?"))
+		else if (arg.toLowerCase().equals("help")
+				|| arg.toLowerCase().equals("info")
+				|| arg.toLowerCase().equals("question") || arg.equals("?"))
 			state = State.HELP;
-		else if (arg.toLowerCase().equals("stop") || arg.toLowerCase().equals("quit")
-			  || arg.toLowerCase().equals("end")  || arg.toLowerCase().equals("kill")
-			  || arg.toLowerCase().equals("exit") || arg.equals("*"))
+		else if (arg.toLowerCase().equals("stop")
+				|| arg.toLowerCase().equals("quit")
+				|| arg.toLowerCase().equals("end")
+				|| arg.toLowerCase().equals("kill")
+				|| arg.toLowerCase().equals("exit") || arg.equals("*"))
 			state = State.STOP;
 		else
 			state = State.RUN;
-		
+
 		return state;
 	}
-	
+
 	private static void doState(State state) {
 		switch (state) {
-		
+
 		case CLEAR:
 			try {
 				Runtime.getRuntime().exec("cls");
@@ -83,31 +92,31 @@ public class Main {
 				System.out.printf("[-] Unable to clear screen\n");
 			}
 			break;
-		
+
 		case ENCRYPT:
 			Encrypt.run();
 			break;
-			
+
 		case DECRYPT:
 			Decrypt.run();
 			break;
-			
+
 		case KEYGEN:
 			KeyGen.run();
 			break;
-			
+
 		case CONNECT:
 			Dropbox.connect();
 			break;
-			
+
 		case HELP:
 			displayHelp();
 			break;
-		
+
 		case STOP:
 			System.out.printf("[+] Goodbye\n");
 			break;
-		
+
 		default:
 			System.out.printf("[+] %s\n", tag);
 			break;
@@ -115,14 +124,9 @@ public class Main {
 	}
 
 	private static void displayHelp() {
-		System.out.printf(
-				"[0] Help/Info\n" +	
-				"[1] Encrypt\n" +
-				"[2] Decrypt\n" +
-				"[3] Generate RSA Key Pair\n" +
-				"[4] Establish Session with Dropbox\n" +
-				"[*] Quit\n"
-			);
+		System.out.printf("[0] Help/Info\n" + "[1] Encrypt\n" + "[2] Decrypt\n"
+				+ "[3] Generate RSA Key Pair\n"
+				+ "[4] Establish Session with Dropbox\n" + "[*] Quit\n");
 	}
-	
+
 }

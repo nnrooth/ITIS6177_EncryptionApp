@@ -36,19 +36,19 @@ public class Asymmetric {
 			throws NoSuchAlgorithmException, NoSuchProviderException,
 			NoSuchPaddingException, InvalidKeyException,
 			IllegalBlockSizeException, BadPaddingException,
-			InvalidKeySpecException	{
-		
+			InvalidKeySpecException {
+
 		byte[] cipherBytes = null;
 		Cipher cipher = CryptoTools.getDefaultAsymmetricCipher();
-		
+
 		PublicKey pubKey = CryptoTools.getAsymmetricPublicKey(keyBytes);
-				
+
 		cipher.init(Cipher.ENCRYPT_MODE, pubKey, CryptoTools.newSecureRandom());
 		cipherBytes = cipher.doFinal(dataBytes);
-		
+
 		return cipherBytes;
 	}
-	
+
 	/**
 	 * Decrypts a byte array using the key
 	 * 
@@ -69,17 +69,16 @@ public class Asymmetric {
 			throws NoSuchAlgorithmException, NoSuchProviderException,
 			NoSuchPaddingException, InvalidKeyException,
 			IllegalBlockSizeException, BadPaddingException,
-			InvalidKeySpecException	{
-		
+			InvalidKeySpecException {
+
 		byte[] dataBytes = null;
 		Cipher cipher = CryptoTools.getDefaultAsymmetricCipher();
-		
+
 		PrivateKey privKey = CryptoTools.getAsymmetricPrivateKey(keyBytes);
-		
+
 		cipher.init(Cipher.DECRYPT_MODE, privKey, CryptoTools.newSecureRandom());
 		dataBytes = cipher.doFinal(cipherBytes);
-		
+
 		return dataBytes;
 	}
-
 }

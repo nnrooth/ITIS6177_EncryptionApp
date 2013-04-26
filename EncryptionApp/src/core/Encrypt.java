@@ -28,84 +28,95 @@ public class Encrypt {
 
 	public static void run() {
 		System.out.printf("[+] TNO Encryption Tool\n");
-		
+
 		// Setup for encryption process
-		InputStream in = null; OutputStream out = null;
-		
+		InputStream in = null;
+		OutputStream out = null;
+
 		String filePath; // Path of file to be encrypted
-		
+
 		String writePath, fileName;
-		String cipherWrite; String digestWrite;
+		String cipherWrite;
+		String digestWrite;
 		String publicKeyDir, publicKey;
-		
-		byte[] publicKeyBytes, mdCipherBytes; // Byte arrays used for encrypting file digest
-		byte[] digest, keyBytes, ivBytes; // Byte arrays used for encryption file
-				
+
+		byte[] publicKeyBytes, mdCipherBytes; // Byte arrays used for encrypting
+												// file digest
+		byte[] digest, keyBytes, ivBytes; // Byte arrays used for encryption
+											// file
+
 		File publicKeyFile; // File reprsenting public key
 		File dataFile, cipherFile, digestFile;
-		
+
 		int keySize; // Key size to use for AES encryption
-		
+
 		try {
 			// Get read path for file from user
 			System.out.printf("[.] Read Path: ");
 			filePath = BaseTools.getUserInput();
 			writePath = BaseTools.getDefaultTempDir();
-			
+
 			// Get the file's name
 			fileName = new File(filePath).getName();
 			cipherWrite = writePath + fileName + ".ct";
 			digestWrite = writePath + fileName + ".md";
-			
+
 			// Create new files for read/write
 			dataFile = new File(filePath);
 			cipherFile = new File(cipherWrite);
 			digestFile = new File(digestWrite);
-			
+
 			// Start encryption process
 			System.out.printf("[*] Attempting Encryption\n");
-						
+
 			publicKeyDir = BaseTools.getDefaultKeyDir();
 			publicKey = publicKeyDir + BaseTools.getDefaultKeyFileNames()[0];
-			
+
 			// Check for public key
 			publicKeyFile = new File(publicKey);
 			if (!publicKeyFile.exists()) {
 				System.out.printf("[-] No key pair found!\n");
 				KeyGen.run();
 			}
-			
+
 			// Read in the public key
 			publicKeyBytes = new byte[(int) publicKeyFile.length()];
 			in = new FileInputStream(publicKeyFile);
-			in.read(publicKeyBytes); in.close();
-			
+			in.read(publicKeyBytes);
+			in.close();
+
 			// Create message digest of file
 			in = new FileInputStream(dataFile);
-			digest = Hash.run(in); in.close();
-			keySize = CryptoTools.getDefaultSymmetricKeySize() /* bits */ / 4;
-			
+			digest = Hash.run(in);
+			in.close();
+			keySize = CryptoTools.getDefaultSymmetricKeySize() /* bits *// 4;
+
 			// Encrypt message digest with public key
-			mdCipherBytes = Asymmetric.encrypt(digest, publicKeyBytes); publicKeyBytes = null;
-			
+			mdCipherBytes = Asymmetric.encrypt(digest, publicKeyBytes);
+			publicKeyBytes = null;
+
 			// Split message digest into key and iv
 			keyBytes = Arrays.copyOf(digest, keySize);
-			ivBytes = CryptoTools.initIvBytes(1, Arrays.copyOfRange(digest, keySize, keySize + 16));
-						
+			ivBytes = CryptoTools.initIvBytes(1,
+					Arrays.copyOfRange(digest, keySize, keySize + 16));
+
 			// Encrypt file and store temporarily
 			Symmetric.encrypt(dataFile, cipherFile, keyBytes, ivBytes);
-			
+
 			// Store digest temporarily
 			out = new FileOutputStream(digestFile);
-			out.write(mdCipherBytes); out.close();
+			out.write(mdCipherBytes);
+			out.close();
 
 			// Pass files to Dropbox
-			Dropbox.upload(cipherFile); cipherFile.delete();
-			Dropbox.upload(digestFile); digestFile.delete();
-			
+			Dropbox.upload(cipherFile);
+			cipherFile.delete();
+			Dropbox.upload(digestFile);
+			digestFile.delete();
+
 			// Process is complete, notify user
 			System.out.printf("[+] Write Complete\n");
-		
+
 			// Error handling
 		} catch (FileNotFoundException e) {
 			System.out.printf("[-] Err: File not found\n");
